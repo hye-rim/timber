@@ -36,6 +36,7 @@ const sfx = {
 function toggleMute() { muted = !muted; store.set('timberMuted', muted ? '1' : '0'); $('muteBtn').textContent = muted ? '🔇' : '🔊'; }
 $('muteBtn').textContent = muted ? '🔇' : '🔊';
 
+let daily = false;
 let G = null, level = 'normal', started = false, paused = false, flyers = [], chips = [], dropOff = 0, swing = 0, shake = 0, flash = 0, lastTs = 0, bonkT = 0;
 
 /* @test-hooks:start */
@@ -48,6 +49,7 @@ function showOverlay(html) {
   o.querySelectorAll('button[data-act]').forEach((b) => { b.onclick = () => act(b.dataset.act); });
 }
 function hideOverlay() { $('overlay').classList.add('hidden'); }
+const lvButtons = (withDaily) => `<div class="lv"><button data-level="easy">쉬움<small>가지 적음</small></button><button data-level="normal">보통<small>보통 속도</small></button><button data-level="hard">어려움<small>가지 많음·빠름</small></button>${withDaily && window.arcadeDaily ? arcadeDaily.buttonHtml() : ''}</div>`;
 function showTitle() {
   G = null; paused = false;
   const best = +store.get('timberBest') || 0;
@@ -55,12 +57,13 @@ function showTitle() {
     <p>화면 <b>왼쪽·오른쪽</b>을 눌러 나무를 베며 올라가요<br><b>가지가 있는 쪽</b>에 서면 부딪혀요!</p>
     <p class="help">시간 게이지가 다 닳아도 끝나요.<br>베면 게이지가 차고, 갈수록 빨리 닳아요</p>
     ${best ? `<p class="note">최고 기록 ${best}번</p>` : ''}
-    <div class="lv"><button data-level="easy">쉬움<small>가지 적음</small></button><button data-level="normal">보통<small>보통 속도</small></button><button data-level="hard">어려움<small>가지 많음·빠름</small></button></div>`);
+    ${lvButtons(true)}`);
 }
 function act(a) { if (a === 'again') start(level); else if (a === 'menu') showTitle(); else if (a === 'resume') resume(); }
 function start(lv) {
   level = lv; paused = false; started = false; flyers = []; chips = []; dropOff = 0; swing = 0; shake = 0; flash = 0; bonkT = 0;
-  G = T.newGame(Math.random, lv, { tutorial: TUTORIAL }); hideOverlay();
+  daily = !TUTORIAL && lv === 'normal' && !!(window.arcadeDaily && arcadeDaily.take());          // 오늘의 판: 날짜가 시드라 누구나 같은 나무
+  G = T.newGame(daily ? arcadeDaily.rng() : Math.random, lv, { tutorial: TUTORIAL }); hideOverlay();
 }
 function pauseGame() {
   if (paused || !G || G.over || TUTORIAL || !started || !$('overlay').classList.contains('hidden')) return;
@@ -96,11 +99,13 @@ function finish() {
   const s = G.score, old = +store.get('timberBest') || 0, rec = s > old;
   if (rec) store.set('timberBest', String(s));
   const why = G.why === 'hit' ? '가지에 부딪혔어요!' : '시간이 다 됐어요!';
+  const lvl = level, wasDaily = daily;
+  if (!TUTORIAL && window.arcadeRun) arcadeRun({ level: lvl === 'easy' ? 'easy' : 'normal', bad: s < (lvl === 'hard' ? 10 : 15) });          // 연패 구제(로비): 15번도 못 베면 나쁜 판
   setTimeout(() => {
     if (!G || !G.over) return;
     if (rec && s >= 5) sfx.best();
-    showOverlay(`<h2>${why}</h2><p class="big">🪓 ${s}번</p><p class="help">${rec ? '🏆 최고 기록!' : `최고 ${Math.max(old, s)}번`} · ${T.LEVELS[level].label}</p>
-      <button data-act="again">한 번 더</button><button class="sub" data-act="menu">메뉴</button>`);
+    showOverlay(`<h2>${why}</h2><p class="big">🪓 ${s}번</p><p class="help">${rec ? '🏆 최고 기록!' : `최고 ${Math.max(old, s)}번`} · ${T.LEVELS[level].label}</p>${wasDaily && window.arcadeDaily ? arcadeDaily.result('나무꾼', s, '번') : ''}
+      <button data-act="again">한 번 더</button>${lvButtons(false)}<button class="sub" data-act="menu">메뉴</button>`);
   }, 900);
 }
 function fit() { const s = Math.min(innerWidth / W, innerHeight / H); canvas.style.width = `${Math.floor(W * s)}px`; canvas.style.height = `${Math.floor(H * s)}px`; $('wrap').style.width = canvas.style.width; $('wrap').style.height = canvas.style.height; }
