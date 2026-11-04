@@ -33,6 +33,7 @@ const sfx = {
   best() { [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, 0.15, 'triangle', 0.07), i * 90)); },
   bonk() { tone(200, 0.12, 'square', 0.05, -80); },
 };
+const vibe = (p) => { try { if (window.arcadeVibe) window.arcadeVibe(p); } catch (_) {} };   // 진동: 로비의 진동 설정을 따른다
 function toggleMute() { muted = !muted; store.set('timberMuted', muted ? '1' : '0'); $('muteBtn').textContent = muted ? '🔇' : '🔊'; }
 $('muteBtn').textContent = muted ? '🔇' : '🔊';
 
@@ -84,7 +85,7 @@ function tap(side) {
     for (let i = 0; i < 4; i++) chips.push({ x: TRUNK_X + side * -20, y: GROUND - 30, vx: -side * (80 + Math.random() * 200), vy: -120 - Math.random() * 180, life: 0.7 });
     sfx.chop(G.score); tutorialSignal('chop');
     if (G.score === 5) tutorialSignal('chop5'); else if (G.score === 12) tutorialSignal('chop12');
-  } else if (G.over) { shake = 0.4; flash = 1; sfx.hit(); finish(); }
+  } else if (G.over) { shake = 0.4; flash = 1; sfx.hit(); vibe([60, 40, 90]); finish(); }
   else if (G.tutorial) { bonkT = 0.4; sfx.bonk(); }
 }
 function pos(e) { const r = canvas.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; }
