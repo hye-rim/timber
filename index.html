@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>나무꾼</title>
+<style>
+  *, *::before, *::after { -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { width:100%; height:100%; overflow:hidden; background:#16301f; color:#fff; touch-action:none;
+    font-family:-apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; }
+  #stage { width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  #wrap { position:relative; background:#000; }
+  #game { display:block; touch-action:none; border-radius:8px; }
+  #top { position:absolute; right:6px; top:6px; display:flex; gap:6px; z-index:7; }
+  #top button { position:relative; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.3); color:#fff; width:32px; height:32px; border-radius:8px; font-size:14px; cursor:pointer; }
+  #top button::after { content:''; position:absolute; inset:-6px -3px; }
+  #overlay { position:absolute; inset:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; padding:14px; background:rgba(14,36,22,.9); border-radius:8px; }
+  #overlay.hidden { display:none; }
+  #overlay h1 { font-size:42px; font-weight:900; color:#ffd77a; text-shadow:0 3px 0 #7a4a00; line-height:1.15; }
+  #overlay h2 { font-size:28px; font-weight:900; }
+  #overlay p { font-size:13px; color:#e9f5ea; line-height:1.6; }
+  #overlay .big { font-size:34px; letter-spacing:3px; }
+  #overlay .help { font-size:12px; color:#bcd5bf; line-height:1.7; }
+  #overlay .note { font-size:11px; color:#9bb89f; }
+  #overlay button { margin-top:6px; background:linear-gradient(180deg,#ffe9a8,#f0b030); color:#3a2000; font-weight:900; font-size:17px; border:none; border-radius:999px; padding:12px 28px; box-shadow:0 4px 0 #9a6a10; cursor:pointer; }
+  #overlay button:active { transform:translateY(3px); box-shadow:0 1px 0 #9a6a10; }
+  #overlay button.sub { background:rgba(255,255,255,.14); color:#fff; box-shadow:none; font-size:14px; padding:9px 22px; border:2px solid rgba(255,255,255,.3); }
+  #overlay .lv { display:flex; gap:8px; margin-top:6px; }
+  #overlay .lv button { margin-top:0; padding:10px 16px; font-size:16px; }
+  #overlay .lv small { display:block; font-size:10px; font-weight:600; opacity:.8; margin-top:2px; }
+  .pc { display:inline; } .touch { display:none; }
+  @media (pointer:coarse) { .pc { display:none; } .touch { display:inline; } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="wrap">
+    <canvas id="game" width="360" height="640"></canvas>
+    <div id="top"><button id="muteBtn" title="소리 (M)">🔊</button></div>
+    <div id="overlay"></div>
+  </div>
+</div>
+<script src="logic.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
